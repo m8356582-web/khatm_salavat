@@ -5,9 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ختم صلوات | سامانه جمعی صلوات</title>
     <link href="https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/Vazirmatn-font-face.css" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
-        /* ===== استایل‌ها (همان‌طور که بود) ===== */
         :root {
             --green-900: #0b3d0b;
             --green-800: #145214;
@@ -58,7 +56,7 @@
             z-index: 100;
             box-shadow: 0 4px 25px rgba(0,0,0,0.25);
         }
-        .logo { color: var(--gold-400); font-size: 26px; font-weight: 800; display: flex; align-items: center; gap: 10px; cursor:pointer; }
+        .logo { color: var(--gold-400); font-size: 26px; font-weight: 800; display: flex; align-items: center; gap: 10px; }
         .logo span { font-size: 34px; }
         .nav-buttons { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
         .btn {
@@ -75,9 +73,9 @@
             font-family: inherit;
             background: var(--surface);
             color: var(--text);
-            border: 1px solid #e0e8e0;
+            border: 1px solid var(--border, #e0e8e0);
         }
-        .btn:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+        .btn:hover { transform: translateY(-2px); box-shadow: var(--shadow-md, 0 4px 12px rgba(0,0,0,0.1)); }
         .btn-gold { background: var(--gold-500); color: #1a1a1a; border-color: var(--gold-500); }
         .btn-gold:hover { background: var(--gold-400); }
         .btn-outline { background: transparent; color: var(--gold-400); border-color: var(--gold-400); }
@@ -196,7 +194,7 @@
 </head>
 <body>
 
-<!-- ===== اشکال هندسی ===== -->
+<!-- اشکال هندسی پس‌زمینه -->
 <div class="geo-shapes">
     <div class="geo-shape circle"></div>
     <div class="geo-shape square"></div>
@@ -204,17 +202,20 @@
     <div class="geo-shape hexagon"></div>
 </div>
 
-<!-- ===== هدر ===== -->
+<!-- هدر -->
 <header>
-    <div class="logo" onclick="navigateTo('home')">
+    <div class="logo" onclick="showPage('homePage')" style="cursor:pointer;">
         <span>🕌</span> ختم صلوات
     </div>
-    <div class="nav-buttons" id="navButtons"></div>
+    <div class="nav-buttons" id="navButtons">
+        <button class="btn btn-gold" onclick="openModal('registerModal')">ثبت‌نام</button>
+        <button class="btn btn-outline" onclick="openModal('loginModal')">ورود</button>
+    </div>
 </header>
 
 <div class="container">
-    <!-- ===== صفحه اصلی ===== -->
-    <div class="page active" id="page-home">
+    <!-- صفحه اصلی -->
+    <div class="page active" id="homePage">
         <div class="page-title">
             <h1>✨ ختم‌های صلوات جمعی ✨</h1>
             <p>با مشارکت در ختم‌ها، ثواب جمعی ببرید</p>
@@ -224,21 +225,21 @@
             <div class="label">صلوات فرستاده شده تا این لحظه</div>
         </div>
         <div class="tabs">
-            <button class="tab active" data-tab="active" onclick="switchTab('active')">🟢 فعال</button>
-            <button class="tab" data-tab="done" onclick="switchTab('done')">✅ کامل شده</button>
+            <button class="tab active" id="tabActive" onclick="switchTab('active')">🟢 فعال</button>
+            <button class="tab" id="tabDone" onclick="switchTab('done')">✅ کامل شده</button>
         </div>
         <div id="khatmList"></div>
     </div>
 
-    <!-- ===== صفحه جزئیات ختم ===== -->
-    <div class="page" id="page-detail">
-        <button class="btn btn-outline back-btn" onclick="navigateTo('home')">→ بازگشت به ختم‌ها</button>
+    <!-- صفحه جزئیات ختم -->
+    <div class="page" id="khatmDetailPage">
+        <button class="btn btn-outline back-btn" onclick="showPage('homePage')">→ بازگشت به ختم‌ها</button>
         <div id="khatmDetailContent"></div>
     </div>
 
-    <!-- ===== صفحه داشبورد ===== -->
-    <div class="page" id="page-dashboard">
-        <button class="btn btn-outline back-btn" onclick="navigateTo('home')">→ بازگشت به خانه</button>
+    <!-- صفحه داشبورد -->
+    <div class="page" id="dashboardPage">
+        <button class="btn btn-outline back-btn" onclick="showPage('homePage')">→ بازگشت به خانه</button>
         <div class="page-title">
             <h1>📊 داشبورد شما</h1>
             <p>آمار فعالیت‌های شما</p>
@@ -247,15 +248,15 @@
         <div id="userParticipations"></div>
     </div>
 
-    <!-- ===== صفحه ذکر شمار ===== -->
-    <div class="page" id="page-zikr">
-        <button class="btn btn-outline back-btn" onclick="navigateTo('home')">→ بازگشت به خانه</button>
+    <!-- صفحه ذکر شمار -->
+    <div class="page" id="zikrPage">
+        <button class="btn btn-outline back-btn" onclick="showPage('homePage')">→ بازگشت به خانه</button>
         <div class="page-title">
             <h1>📿 ذکر شمار شخصی</h1>
             <p>اذکار خود را بشمارید</p>
         </div>
         <div class="card">
-            <div style="display:flex; gap:10px; margin-bottom:15px;">
+            <div class="input-group" style="display:flex; gap:10px; margin-bottom:15px;">
                 <input type="text" id="newZikrName" placeholder="نام ذکر جدید..." style="flex:1;">
                 <button class="btn btn-gold" onclick="addZikr()">افزودن</button>
             </div>
@@ -263,22 +264,28 @@
         </div>
     </div>
 
-    <!-- ===== صفحه پنل ادمین ===== -->
-    <div class="page" id="page-admin">
-        <button class="btn btn-outline back-btn" onclick="navigateTo('home')">→ بازگشت به خانه</button>
+    <!-- صفحه پنل ادمین -->
+    <div class="page" id="adminPage">
+        <button class="btn btn-outline back-btn" onclick="showPage('homePage')">→ بازگشت به خانه</button>
         <div class="page-title">
             <h1>👑 پنل مدیریت</h1>
             <p>مدیریت کاربران و ختم‌ها</p>
         </div>
-        <div class="card"><h3>👥 کاربران</h3><div id="adminUsersList"></div></div>
-        <div class="card"><h3>🕌 ختم‌ها</h3><div id="adminKhatmsList"></div></div>
+        <div class="card">
+            <h3>👥 کاربران</h3>
+            <div id="adminUsersList"></div>
+        </div>
+        <div class="card">
+            <h3>🕌 ختم‌ها</h3>
+            <div id="adminKhatmsList"></div>
+        </div>
     </div>
 </div>
 
-<!-- ===== دکمه شناور ساخت ختم ===== -->
+<!-- دکمه شناور ساخت ختم -->
 <button class="fab" onclick="openCreateKhatmModal()">+</button>
 
-<!-- ===== مودال ثبت‌نام ===== -->
+<!-- مودال ثبت‌نام -->
 <div class="modal" id="registerModal">
     <div class="modal-content">
         <h2>📝 ثبت‌نام</h2>
@@ -290,7 +297,7 @@
     </div>
 </div>
 
-<!-- ===== مودال ورود ===== -->
+<!-- مودال ورود -->
 <div class="modal" id="loginModal">
     <div class="modal-content">
         <h2>🔑 ورود</h2>
@@ -300,7 +307,7 @@
     </div>
 </div>
 
-<!-- ===== مودال ساخت ختم ===== -->
+<!-- مودال ساخت ختم -->
 <div class="modal" id="createKhatmModal">
     <div class="modal-content">
         <h2>🌙 ساخت ختم جدید</h2>
@@ -312,7 +319,7 @@
     </div>
 </div>
 
-<!-- ===== مودال ثبت دور ===== -->
+<!-- مودال ثبت دور -->
 <div class="modal" id="addDorModal">
     <div class="modal-content">
         <h2>📿 ثبت دور</h2>
@@ -322,7 +329,7 @@
     </div>
 </div>
 
-<!-- ===== مودال تأیید عمومی ===== -->
+<!-- مودال تأیید عمومی -->
 <div class="modal" id="confirmModal">
     <div class="modal-content">
         <h2>⚠️ تأیید عملیات</h2>
@@ -335,819 +342,643 @@
 </div>
 
 <script>
-// ================================================================
-//  IIFE برای جلوگیری از تداخل متغیرها
-// ================================================================
-(function() {
-    // ============================================================
-    //  تنظیمات Supabase
-    // ============================================================
-    const SUPABASE_URL = 'https://eudfhgvtbmbuosctlayw.supabase.co';
-    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImV1ZGZoZ3Z0Ym1idW9zY3RsYXl3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODc0OTQ2MzEsImV4cCI6MjEwMzA3MDYzMX0.3_fLCSfM6zxg55I1qeqFkdwOAgUoS9DbAVolGlviyIQ';
+// ==================== تنظیمات Supabase ====================
+const SUPABASE_URL = 'https://eudfhgvtbmbuosctlayw.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImV1ZGZoZ3Z0Ym1idW9zY3RsYXl3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODc0OTQ2MzEsImV4cCI6MjEwMzA3MDYzMX0.3_fLCSfM6zxg55I1qeqFkdwOAgUoS9DbAVolGlviyIQ';
 
-    // ایجاد کلاینت اگر وجود نداشته باشد
-    if (!window.__supabaseClient) {
-        window.__supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-    }
-    const supabaseClient = window.__supabaseClient;
+// ==================== State ====================
+let currentUser = JSON.parse(localStorage.getItem('khatm_user')) || null;
+let currentKhatmId = null;
+let currentTab = 'active';
 
-    // ============================================================
-    //  متغیرهای حالت
-    // ============================================================
-    let currentUser = null;
-    let currentUserProfile = null;
-    let currentKhatmId = null;
-    let currentTab = 'active';
+// ==================== توابع کمکی ====================
+function showPage(pageId) {
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    document.getElementById(pageId).classList.add('active');
+    if (pageId === 'homePage') loadHomeData();
+    if (pageId === 'dashboardPage' && currentUser) showDashboard();
+    if (pageId === 'zikrPage' && currentUser) loadZikrs();
+    if (pageId === 'adminPage' && currentUser) loadAdminData();
+}
 
-    // ============================================================
-    //  توابع کمکی (دسترسی به window)
-    // ============================================================
-    function escapeHtml(text) {
-        if (!text) return '';
-        const div = document.createElement('div');
-        div.textContent = text;
-        return div.innerHTML;
-    }
-
-    function setTextContent(id, text) {
-        const el = document.getElementById(id);
-        if (el) el.textContent = text || '';
-    }
-
-    window.openModal = function(id) {
-        document.getElementById(id).classList.add('active');
+function openModal(modalId) {
+    document.getElementById(modalId).classList.add('active');
+}
+function closeModal(modalId) {
+    document.getElementById(modalId).classList.remove('active');
+}
+function showConfirm(message, callback) {
+    document.getElementById('confirmMessage').textContent = message;
+    const confirmModal = document.getElementById('confirmModal');
+    confirmModal.classList.add('active');
+    document.getElementById('confirmYes').onclick = () => {
+        confirmModal.classList.remove('active');
+        callback();
     };
+}
 
-    window.closeModal = function(id) {
-        document.getElementById(id).classList.remove('active');
+function updateNav() {
+    const nav = document.getElementById('navButtons');
+    if (currentUser) {
+        nav.innerHTML = `
+            <button class="btn btn-outline" onclick="showPage('homePage')">🏠 خانه</button>
+            <button class="btn btn-outline" onclick="showPage('dashboardPage')">📊 داشبورد</button>
+            <button class="btn btn-outline" onclick="showPage('zikrPage')">📿 ذکر شمار</button>
+            ${currentUser.role === 'admin1' || currentUser.role === 'admin2' ? '<button class="btn btn-outline" onclick="showPage(\'adminPage\')">👑 مدیریت</button>' : ''}
+            <button class="btn btn-gold" onclick="logout()">خروج (${currentUser.name.split(' ')[0]})</button>
+        `;
+    } else {
+        nav.innerHTML = `
+            <button class="btn btn-gold" onclick="openModal('registerModal')">ثبت‌نام</button>
+            <button class="btn btn-outline" onclick="openModal('loginModal')">ورود</button>
+        `;
+    }
+}
+
+function logout() {
+    localStorage.removeItem('khatm_user');
+    currentUser = null;
+    updateNav();
+    showPage('homePage');
+}
+
+// ==================== API ====================
+async function supabaseQuery(table, method = 'GET', body = null, params = {}) {
+    let url = `${SUPABASE_URL}/rest/v1/${table}`;
+    if (Object.keys(params).length > 0) {
+        const qs = new URLSearchParams();
+        for (let key in params) qs.append(key, params[key]);
+        url += `?${qs.toString()}`;
+    }
+    const headers = {
+        'apikey': SUPABASE_ANON_KEY,
+        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+        'Content-Type': 'application/json',
     };
+    const options = { method, headers };
+    if (body) options.body = JSON.stringify(body);
+    const response = await fetch(url, options);
+    if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.message || 'خطای سرور');
+    }
+    if (method === 'DELETE') return null;
+    return response.json();
+}
 
-    window.showConfirm = function(message, callback) {
-        document.getElementById('confirmMessage').textContent = message;
-        const modal = document.getElementById('confirmModal');
-        modal.classList.add('active');
-        document.getElementById('confirmYes').onclick = function() {
-            modal.classList.remove('active');
-            callback();
+// ==================== Authentication ====================
+async function registerUser() {
+    const name = document.getElementById('regName').value.trim();
+    const phone = document.getElementById('regPhone').value.trim();
+    const password = document.getElementById('regPassword').value;
+    const password2 = document.getElementById('regPassword2').value;
+
+    if (!name || !phone || !password || !password2) {
+        alert('لطفاً همه فیلدها را پر کنید.');
+        return;
+    }
+    if (!/^09\d{9}$/.test(phone)) {
+        alert('شماره موبایل معتبر نیست.');
+        return;
+    }
+    if (password.length < 6) {
+        alert('رمز عبور باید حداقل ۶ کاراکتر باشد.');
+        return;
+    }
+    if (password !== password2) {
+        alert('رمز عبور و تکرار آن مطابقت ندارند.');
+        return;
+    }
+
+    try {
+        // بررسی تکراری بودن شماره
+        const existing = await supabaseQuery('users', 'GET', null, { phone: `eq.${phone}` });
+        if (existing.length > 0) {
+            alert('این شماره قبلاً ثبت شده است. لطفاً وارد شوید.');
+            closeModal('registerModal');
+            openModal('loginModal');
+            return;
+        }
+        const newUser = {
+            name,
+            phone,
+            password,
+            role: 'user'
         };
-    };
-
-    // ============================================================
-    //  احراز هویت (با غیرفعال بودن تأیید ایمیل)
-    // ============================================================
-    window.registerUser = async function() {
-        const name = document.getElementById('regName').value.trim();
-        const phone = document.getElementById('regPhone').value.trim();
-        const password = document.getElementById('regPassword').value;
-        const password2 = document.getElementById('regPassword2').value;
-
-        if (!name || !phone || !password || !password2) {
-            alert('لطفاً همه فیلدها را پر کنید.');
-            return;
-        }
-        if (!/^09\d{9}$/.test(phone)) {
-            alert('شماره موبایل معتبر نیست (مثلاً 09123456789).');
-            return;
-        }
-        if (password.length < 6) {
-            alert('رمز عبور باید حداقل ۶ کاراکتر باشد.');
-            return;
-        }
-        if (password !== password2) {
-            alert('رمز عبور و تکرار آن مطابقت ندارند.');
-            return;
-        }
-
-        try {
-            const email = `${phone}@example.com`;
-            
-            // ۱. ثبت‌نام کاربر
-            const { data: authData, error: authError } = await supabaseClient.auth.signUp({
-                email: email,
-                password: password,
-            });
-            if (authError) throw authError;
-
-            const userId = authData.user.id;
-
-            // ۲. ذخیره پروفایل
-            const { error: profileError } = await supabaseClient
-                .from('profiles')
-                .insert([{ id: userId, name, phone, role: 'user' }]);
-            if (profileError) throw profileError;
-
-            // ۳. ورود خودکار (چون تأیید ایمیل غیرفعال است)
-            const { data: signInData, error: signInError } = await supabaseClient.auth.signInWithPassword({
-                email: email,
-                password: password,
-            });
-            if (signInError) throw signInError;
-
-            // ۴. دریافت پروفایل
-            const { data: profile, error: profileError2 } = await supabaseClient
-                .from('profiles')
-                .select('*')
-                .eq('id', signInData.user.id)
-                .single();
-            if (profileError2) throw profileError2;
-
-            currentUser = signInData.user;
-            currentUserProfile = profile;
-            localStorage.setItem('khatm_session', JSON.stringify({ user: currentUser, profile: currentUserProfile }));
-
-            window.closeModal('registerModal');
-            updateNav();
-            navigateTo('home');
-            alert(`✅ ${name} عزیز، ثبت‌نام شما با موفقیت انجام شد!`);
-        } catch (err) {
-            alert('خطا در ثبت‌نام: ' + err.message);
-        }
-    };
-
-    window.loginUser = async function() {
-        const phone = document.getElementById('loginPhone').value.trim();
-        const password = document.getElementById('loginPassword').value;
-
-        if (!phone || !password) {
-            alert('لطفاً شماره موبایل و رمز عبور را وارد کنید.');
-            return;
-        }
-
-        try {
-            const email = `${phone}@example.com`;
-            const { data, error } = await supabaseClient.auth.signInWithPassword({
-                email: email,
-                password: password,
-            });
-            if (error) {
-                if (error.status === 400) {
-                    alert('کاربری با این شماره یافت نشد یا رمز عبور اشتباه است.');
-                } else {
-                    alert('خطا در ورود: ' + error.message);
-                }
-                return;
-            }
-
-            const { data: profile, error: profileError } = await supabaseClient
-                .from('profiles')
-                .select('*')
-                .eq('id', data.user.id)
-                .single();
-            if (profileError) throw profileError;
-
-            currentUser = data.user;
-            currentUserProfile = profile;
-            localStorage.setItem('khatm_session', JSON.stringify({ user: currentUser, profile: currentUserProfile }));
-
-            window.closeModal('loginModal');
-            updateNav();
-            navigateTo('home');
-            alert(`✅ خوش آمدید ${profile.name}!`);
-        } catch (err) {
-            alert('خطا در ورود: ' + err.message);
-        }
-    };
-
-    window.logout = function() {
-        supabaseClient.auth.signOut();
-        localStorage.removeItem('khatm_session');
-        currentUser = null;
-        currentUserProfile = null;
+        const created = await supabaseQuery('users', 'POST', newUser);
+        currentUser = created[0];
+        localStorage.setItem('khatm_user', JSON.stringify(currentUser));
         updateNav();
-        navigateTo('home');
-    };
+        closeModal('registerModal');
+        showPage('homePage');
+        alert(`✅ ${name} عزیز، ثبت‌نام شما با موفقیت انجام شد!`);
+    } catch (err) {
+        alert('خطا در ثبت‌نام: ' + err.message);
+    }
+}
 
-    async function loadSession() {
-        const saved = localStorage.getItem('khatm_session');
-        if (saved) {
-            try {
-                const { user, profile } = JSON.parse(saved);
-                const { data: { user: current }, error } = await supabaseClient.auth.getUser();
-                if (error || !current) {
-                    localStorage.removeItem('khatm_session');
-                    return;
-                }
-                currentUser = current;
-                currentUserProfile = profile;
-            } catch (e) {
-                localStorage.removeItem('khatm_session');
-            }
+async function loginUser() {
+    const phone = document.getElementById('loginPhone').value.trim();
+    const password = document.getElementById('loginPassword').value;
+
+    if (!phone || !password) {
+        alert('لطفاً شماره موبایل و رمز عبور را وارد کنید.');
+        return;
+    }
+
+    try {
+        const users = await supabaseQuery('users', 'GET', null, { phone: `eq.${phone}` });
+        if (users.length === 0) {
+            alert('کاربری با این شماره یافت نشد.');
+            return;
         }
+        const user = users[0];
+        if (user.password !== password) {
+            alert('رمز عبور اشتباه است.');
+            return;
+        }
+        currentUser = user;
+        localStorage.setItem('khatm_user', JSON.stringify(currentUser));
         updateNav();
+        closeModal('loginModal');
+        showPage('homePage');
+        alert(`✅ خوش آمدید ${user.name}!`);
+    } catch (err) {
+        alert('خطا در ورود: ' + err.message);
     }
+}
 
-    // ============================================================
-    //  ناوبری
-    // ============================================================
-    window.navigateTo = function(page) {
-        document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-        const target = document.getElementById(`page-${page}`);
-        if (target) target.classList.add('active');
+// ==================== ختم‌ها ====================
+async function loadHomeData() {
+    await loadCounter();
+    await loadKhatms(currentTab);
+}
 
-        if (page === 'home') {
-            loadHomeData();
-        } else if (page === 'dashboard') {
-            if (currentUser) showDashboard(); else alert('لطفاً وارد شوید.');
-        } else if (page === 'zikr') {
-            if (currentUser) loadZikrs(); else alert('لطفاً وارد شوید.');
-        } else if (page === 'admin') {
-            if (currentUser && (currentUserProfile?.role === 'admin1' || currentUserProfile?.role === 'admin2')) {
-                loadAdminData();
-            } else {
-                alert('دسترسی غیرمجاز');
-                navigateTo('home');
-            }
-        }
-    };
-
-    function updateNav() {
-        const nav = document.getElementById('navButtons');
-        if (currentUser && currentUserProfile) {
-            const name = currentUserProfile.name || 'کاربر';
-            nav.innerHTML = `
-                <button class="btn btn-outline" onclick="navigateTo('home')">🏠 خانه</button>
-                <button class="btn btn-outline" onclick="navigateTo('dashboard')">📊 داشبورد</button>
-                <button class="btn btn-outline" onclick="navigateTo('zikr')">📿 ذکر شمار</button>
-                ${(currentUserProfile.role === 'admin1' || currentUserProfile.role === 'admin2') ? 
-                    '<button class="btn btn-outline" onclick="navigateTo(\'admin\')">👑 مدیریت</button>' : ''}
-                <button class="btn btn-gold" onclick="logout()">خروج (${escapeHtml(name.split(' ')[0])})</button>
-            `;
-        } else {
-            nav.innerHTML = `
-                <button class="btn btn-gold" onclick="openModal('registerModal')">ثبت‌نام</button>
-                <button class="btn btn-outline" onclick="openModal('loginModal')">ورود</button>
-            `;
-        }
+async function loadCounter() {
+    try {
+        const data = await supabaseQuery('khatms', 'GET', null, { select: 'done_dor' });
+        const totalDorDone = data.reduce((sum, k) => sum + (k.done_dor || 0), 0);
+        document.getElementById('totalSalavatCounter').textContent = (totalDorDone * 100).toLocaleString('fa-IR');
+    } catch (err) {
+        console.error(err);
     }
+}
 
-    // ============================================================
-    //  بارگذاری داده‌های اصلی
-    // ============================================================
-    async function loadHomeData() {
-        await loadCounter();
-        await loadKhatms(currentTab);
-    }
-
-    async function loadCounter() {
-        try {
-            const { data, error } = await supabaseClient
-                .from('khatms')
-                .select('done_dor');
-            if (error) throw error;
-            const total = data.reduce((sum, k) => sum + (k.done_dor || 0), 0);
-            setTextContent('totalSalavatCounter', (total * 100).toLocaleString('fa-IR'));
-        } catch (err) {
-            console.error('loadCounter:', err);
-        }
-    }
-
-    async function loadKhatms(type) {
-        const listEl = document.getElementById('khatmList');
-        listEl.innerHTML = '<p style="text-align:center;color:#999;">در حال بارگذاری...</p>';
-
-        try {
-            const { data, error } = await supabaseClient
-                .from('khatms')
-                .select('*')
-                .eq('status', type === 'active' ? 'active' : 'done')
-                .order('created_at', { ascending: false });
-
-            if (error) throw error;
-
-            if (!data || data.length === 0) {
-                listEl.innerHTML = '<p style="text-align:center;color:#777;">هیچ ختمی یافت نشد.</p>';
-                return;
-            }
-
-            listEl.innerHTML = data.map(k => {
-                const percent = k.total_dor > 0 ? Math.round((k.done_dor / k.total_dor) * 100) : 0;
-                return `
-                    <div class="khatm-card" onclick="openKhatmDetail('${k.id}')">
-                        <div class="khatm-header">
-                            <div class="khatm-title">${escapeHtml(k.title)}</div>
-                            <span class="badge ${k.status === 'active' ? 'badge-active' : 'badge-done'}">
-                                ${k.status === 'active' ? '🟢 فعال' : '✅ کامل'}
-                            </span>
-                        </div>
-                        <div class="progress-bar"><div class="progress-fill" style="width:${percent}%"></div></div>
-                        <div class="khatm-info">
-                            <span>نذر: ${escapeHtml(k.nazer || 'ناشناس')}</span>
-                            <span>${k.done_dor} از ${k.total_dor} دور</span>
-                            <span>${percent}%</span>
-                        </div>
-                    </div>
-                `;
-            }).join('');
-        } catch (err) {
-            listEl.innerHTML = `<p style="text-align:center;color:red;">خطا: ${escapeHtml(err.message)}</p>`;
-        }
-    }
-
-    window.switchTab = function(tab) {
-        currentTab = tab;
-        document.querySelectorAll('.tabs .tab').forEach(t => t.classList.remove('active'));
-        document.querySelector(`.tabs .tab[data-tab="${tab}"]`).classList.add('active');
-        loadKhatms(tab);
-    };
-
-    // ============================================================
-    //  ساخت ختم
-    // ============================================================
-    window.openCreateKhatmModal = function() {
-        if (!currentUser) {
-            alert('برای ساخت ختم ابتدا وارد شوید.');
-            window.openModal('loginModal');
+async function loadKhatms(type) {
+    const listEl = document.getElementById('khatmList');
+    listEl.innerHTML = '<p style="text-align:center;color:#999;">در حال بارگذاری...</p>';
+    try {
+        let query = 'khatms?order=created_at.desc';
+        if (type === 'active') query += '&status=eq.active';
+        else query += '&status=eq.done';
+        const data = await supabaseQuery(query);
+        if (data.length === 0) {
+            listEl.innerHTML = '<p style="text-align:center;color:#777;">هیچ ختمی یافت نشد.</p>';
             return;
         }
-        window.openModal('createKhatmModal');
-    };
-
-    window.createKhatm = async function() {
-        const title = document.getElementById('khatmTitle').value.trim();
-        const nazer = document.getElementById('khatmNazer').value.trim() || null;
-        const totalDor = parseInt(document.getElementById('khatmTotal').value);
-        const description = document.getElementById('khatmDesc').value.trim() || null;
-
-        if (!title || !totalDor || totalDor < 1) {
-            alert('عنوان و تعداد دورهای معتبر وارد کنید.');
-            return;
-        }
-
-        window.showConfirm(`آیا از ساخت ختم «${escapeHtml(title)}» با ${totalDor} دور مطمئن هستید؟`, async () => {
-            try {
-                const { data, error } = await supabaseClient
-                    .from('khatms')
-                    .insert([{
-                        title,
-                        nazer,
-                        total_dor: totalDor,
-                        done_dor: 0,
-                        status: 'active',
-                        description,
-                        created_by: currentUser.id,
-                    }])
-                    .select();
-                if (error) throw error;
-
-                window.closeModal('createKhatmModal');
-                document.getElementById('khatmTitle').value = '';
-                document.getElementById('khatmNazer').value = '';
-                document.getElementById('khatmTotal').value = 150;
-                document.getElementById('khatmDesc').value = '';
-
-                loadHomeData();
-                alert('🎉 ختم با موفقیت ایجاد شد!');
-            } catch (err) {
-                alert('خطا در ایجاد ختم: ' + err.message);
-            }
-        });
-    };
-
-    // ============================================================
-    //  جزئیات ختم
-    // ============================================================
-    window.openKhatmDetail = async function(khatmId) {
-        currentKhatmId = khatmId;
-        window.navigateTo('detail');
-
-        const container = document.getElementById('khatmDetailContent');
-        container.innerHTML = '<p style="text-align:center;">در حال بارگذاری...</p>';
-
-        try {
-            const { data: khatm, error: kError } = await supabaseClient
-                .from('khatms')
-                .select('*')
-                .eq('id', khatmId)
-                .single();
-            if (kError) throw kError;
-
-            const { data: records, error: rError } = await supabaseClient
-                .from('dor_records')
-                .select('*')
-                .eq('khatm_id', khatmId)
-                .order('created_at', { ascending: false });
-            if (rError) throw rError;
-
-            const { data: comments, error: cError } = await supabaseClient
-                .from('comments')
-                .select('*')
-                .eq('khatm_id', khatmId)
-                .order('created_at', { ascending: false });
-            if (cError) throw cError;
-
-            const { data: users, error: uError } = await supabaseClient
-                .from('profiles')
-                .select('id, name');
-            if (uError) throw uError;
-            const userMap = Object.fromEntries(users.map(u => [u.id, u.name]));
-
-            const percent = khatm.total_dor > 0 ? Math.round((khatm.done_dor / khatm.total_dor) * 100) : 0;
-
-            let html = `
-                <div class="card">
+        listEl.innerHTML = data.map(k => {
+            const percent = k.total_dor > 0 ? Math.round((k.done_dor / k.total_dor) * 100) : 0;
+            return `
+                <div class="khatm-card" onclick="openKhatmDetail('${k.id}')">
                     <div class="khatm-header">
-                        <h2>${escapeHtml(khatm.title)}</h2>
-                        <span class="badge ${khatm.status === 'active' ? 'badge-active' : 'badge-done'}">
-                            ${khatm.status === 'active' ? '🟢 فعال' : '✅ کامل'}
-                        </span>
+                        <div class="khatm-title">${k.title}</div>
+                        <span class="badge ${k.status === 'active' ? 'badge-active' : 'badge-done'}">${k.status === 'active' ? '🟢 فعال' : '✅ کامل'}</span>
                     </div>
-                    <p style="color:var(--text-muted);">${escapeHtml(khatm.description || '')}</p>
-                    <div class="khatm-info" style="margin-bottom:15px;">
-                        <span>نذر: ${escapeHtml(khatm.nazer || 'ناشناس')}</span>
-                        <span>کل دور: ${khatm.total_dor}</span>
-                        <span>انجام شده: ${khatm.done_dor}</span>
-                    </div>
-                    <div class="progress-bar" style="height:14px;"><div class="progress-fill" style="width:${percent}%"></div></div>
-                    <p style="text-align:center;margin-top:8px;">${percent}% تکمیل شده</p>
-                </div>
-
-                <div class="card">
-                    <h3>📿 ثبت دور</h3>
-                    ${currentUser ? `
-                        <button class="btn btn-gold" onclick="openAddDorModal()">ثبت دور</button>
-                    ` : '<p>برای ثبت دور ابتدا وارد شوید.</p>'}
-                </div>
-
-                <div class="card">
-                    <h3>👥 شرکت‌کنندگان (${records.length})</h3>
-                    ${records.length === 0 ? '<p>هنوز کسی دور ثبت نکرده.</p>' : `
-                        <table class="admin-table">
-                            <thead><tr><th>نام</th><th>گیرنده</th><th>دورها</th><th>تاریخ</th></tr></thead>
-                            <tbody>
-                                ${records.map(r => `
-                                    <tr>
-                                        <td>${escapeHtml(userMap[r.user_id] || 'ناشناس')}</td>
-                                        <td>${escapeHtml(r.recipient_name || 'خود')}</td>
-                                        <td>${r.dor_count}</td>
-                                        <td>${new Date(r.created_at).toLocaleDateString('fa-IR')}</td>
-                                    </tr>
-                                `).join('')}
-                            </tbody>
-                        </table>
-                    `}
-                </div>
-
-                <div class="card">
-                    <h3>💬 نظرات (${comments.length})</h3>
-                    ${currentUser ? `
-                        <div style="display:flex; gap:10px; margin-bottom:15px;">
-                            <input type="text" id="commentInput" placeholder="نظر خود را بنویسید..." style="flex:1; padding:10px; border:1px solid #ddd; border-radius:8px;">
-                            <button class="btn btn-gold" onclick="submitComment()">ارسال</button>
-                        </div>
-                    ` : ''}
-                    <div id="commentsList">
-                        ${comments.length === 0 ? '<p>نظری ثبت نشده.</p>' : comments.map(c => `
-                            <div style="padding:10px 0; border-bottom:1px solid #eee;">
-                                <strong>${escapeHtml(userMap[c.user_id] || 'ناشناس')}</strong>
-                                <span style="font-size:12px;color:#999;margin-right:8px;">${new Date(c.created_at).toLocaleDateString('fa-IR')}</span>
-                                <p>${escapeHtml(c.text)}</p>
-                            </div>
-                        `).join('')}
+                    <div class="progress-bar"><div class="progress-fill" style="width:${percent}%"></div></div>
+                    <div class="khatm-info">
+                        <span>نذر: ${k.nazer || 'ناشناس'}</span>
+                        <span>${k.done_dor} از ${k.total_dor} دور</span>
+                        <span>${percent}%</span>
                     </div>
                 </div>
             `;
-            container.innerHTML = html;
+        }).join('');
+    } catch (err) {
+        listEl.innerHTML = `<p style="text-align:center;color:red;">خطا: ${err.message}</p>`;
+    }
+}
+
+function switchTab(tab) {
+    currentTab = tab;
+    document.getElementById('tabActive').classList.toggle('active', tab === 'active');
+    document.getElementById('tabDone').classList.toggle('active', tab === 'done');
+    loadKhatms(tab);
+}
+
+function openCreateKhatmModal() {
+    if (!currentUser) {
+        alert('برای ساخت ختم ابتدا وارد شوید.');
+        openModal('loginModal');
+        return;
+    }
+    openModal('createKhatmModal');
+}
+
+async function createKhatm() {
+    const title = document.getElementById('khatmTitle').value.trim();
+    const nazer = document.getElementById('khatmNazer').value.trim() || null;
+    const totalDor = parseInt(document.getElementById('khatmTotal').value);
+    const description = document.getElementById('khatmDesc').value.trim() || null;
+
+    if (!title || !totalDor || totalDor < 1) {
+        alert('عنوان و تعداد دورهای معتبر وارد کنید.');
+        return;
+    }
+
+    showConfirm(`آیا از ساخت ختم «${title}» با ${totalDor} دور مطمئن هستید؟`, async () => {
+        try {
+            const newKhatm = {
+                title,
+                nazer,
+                total_dor: totalDor,
+                done_dor: 0,
+                status: 'active',
+                description,
+                created_by: currentUser.id
+            };
+            await supabaseQuery('khatms', 'POST', newKhatm);
+            closeModal('createKhatmModal');
+            document.getElementById('khatmTitle').value = '';
+            document.getElementById('khatmNazer').value = '';
+            document.getElementById('khatmTotal').value = 150;
+            document.getElementById('khatmDesc').value = '';
+            loadHomeData();
+            alert('🎉 ختم با موفقیت ایجاد شد!');
         } catch (err) {
-            container.innerHTML = `<p style="color:red;">خطا: ${escapeHtml(err.message)}</p>`;
+            alert('خطا در ایجاد ختم: ' + err.message);
         }
-    };
+    });
+}
 
-    // ============================================================
-    //  ثبت دور
-    // ============================================================
-    window.openAddDorModal = function() {
-        document.getElementById('dorCount').value = 1;
-        document.getElementById('recipientName').value = '';
-        window.openModal('addDorModal');
-    };
+// ==================== جزئیات ختم ====================
+async function openKhatmDetail(khatmId) {
+    currentKhatmId = khatmId;
+    showPage('khatmDetailPage');
+    const container = document.getElementById('khatmDetailContent');
+    container.innerHTML = '<p style="text-align:center;">در حال بارگذاری...</p>';
 
-    window.submitDor = async function() {
-        const dorCount = parseInt(document.getElementById('dorCount').value);
-        const recipient = document.getElementById('recipientName').value.trim() || null;
+    try {
+        const khatms = await supabaseQuery('khatms', 'GET', null, { id: `eq.${khatmId}` });
+        if (khatms.length === 0) throw new Error('ختم یافت نشد');
+        const khatm = khatms[0];
 
-        if (!dorCount || dorCount < 1) {
-            alert('تعداد دور معتبر وارد کنید.');
+        const records = await supabaseQuery('dor_records', 'GET', null, { khatm_id: `eq.${khatmId}`, order: 'created_at.desc' });
+        const comments = await supabaseQuery('comments', 'GET', null, { khatm_id: `eq.${khatmId}`, order: 'created_at.desc' });
+
+        const percent = khatm.total_dor > 0 ? Math.round((khatm.done_dor / khatm.total_dor) * 100) : 0;
+
+        let html = `
+            <div class="card">
+                <div class="khatm-header">
+                    <h2>${khatm.title}</h2>
+                    <span class="badge ${khatm.status === 'active' ? 'badge-active' : 'badge-done'}">${khatm.status === 'active' ? '🟢 فعال' : '✅ کامل'}</span>
+                </div>
+                <p style="color:var(--text-muted);">${khatm.description || ''}</p>
+                <div class="khatm-info" style="margin-bottom:15px;">
+                    <span>نذر: ${khatm.nazer || 'ناشناس'}</span>
+                    <span>کل دور: ${khatm.total_dor}</span>
+                    <span>انجام شده: ${khatm.done_dor}</span>
+                </div>
+                <div class="progress-bar" style="height:14px;"><div class="progress-fill" style="width:${percent}%"></div></div>
+                <p style="text-align:center;margin-top:8px;">${percent}% تکمیل شده</p>
+            </div>
+
+            <div class="card">
+                <h3>📿 ثبت دور</h3>
+                ${currentUser ? `
+                    <div style="display:flex; gap:10px; flex-wrap:wrap;">
+                        <button class="btn btn-gold" onclick="openAddDorModal()">ثبت دور</button>
+                    </div>
+                ` : '<p>برای ثبت دور ابتدا وارد شوید.</p>'}
+            </div>
+
+            <div class="card">
+                <h3>👥 شرکت‌کنندگان (${records.length})</h3>
+                ${records.length === 0 ? '<p>هنوز کسی دور ثبت نکرده.</p>' : `
+                    <table class="admin-table">
+                        <thead><tr><th>نام</th><th>گیرنده</th><th>دورها</th><th>تاریخ</th></tr></thead>
+                        <tbody>
+                            ${records.map(r => {
+                                const user = users.find(u => u.id === r.user_id);
+                                return `<tr>
+                                    <td>${user ? user.name : 'ناشناس'}</td>
+                                    <td>${r.recipient_name || 'خود'}</td>
+                                    <td>${r.dor_count}</td>
+                                    <td>${new Date(r.created_at).toLocaleDateString('fa-IR')}</td>
+                                </tr>`;
+                            }).join('')}
+                        </tbody>
+                    </table>
+                `}
+            </div>
+
+            <div class="card">
+                <h3>💬 نظرات (${comments.length})</h3>
+                ${currentUser ? `
+                    <div style="display:flex; gap:10px; margin-bottom:15px;">
+                        <input type="text" id="commentInput" placeholder="نظر خود را بنویسید..." style="flex:1; padding:10px; border:1px solid #ddd; border-radius:8px;">
+                        <button class="btn btn-gold" onclick="submitComment()">ارسال</button>
+                    </div>
+                ` : ''}
+                <div id="commentsList">
+                    ${comments.length === 0 ? '<p>نظری ثبت نشده.</p>' : comments.map(c => {
+                        const user = users.find(u => u.id === c.user_id);
+                        return `<div style="padding:10px 0; border-bottom:1px solid #eee;">
+                            <strong>${user ? user.name : 'ناشناس'}</strong>
+                            <span style="font-size:12px;color:#999;margin-right:8px;">${new Date(c.created_at).toLocaleDateString('fa-IR')}</span>
+                            <p>${c.text}</p>
+                        </div>`;
+                    }).join('')}
+                </div>
+            </div>
+        `;
+        container.innerHTML = html;
+    } catch (err) {
+        container.innerHTML = `<p style="color:red;">خطا: ${err.message}</p>`;
+    }
+}
+
+function openAddDorModal() {
+    document.getElementById('dorCount').value = 1;
+    document.getElementById('recipientName').value = '';
+    openModal('addDorModal');
+}
+
+async function submitDor() {
+    const dorCount = parseInt(document.getElementById('dorCount').value);
+    const recipient = document.getElementById('recipientName').value.trim() || null;
+
+    if (!dorCount || dorCount < 1) {
+        alert('تعداد دور معتبر وارد کنید.');
+        return;
+    }
+    if (!currentUser || !currentKhatmId) {
+        alert('ابتدا وارد شوید.');
+        return;
+    }
+
+    try {
+        const khatms = await supabaseQuery('khatms', 'GET', null, { id: `eq.${currentKhatmId}` });
+        if (khatms.length === 0) throw new Error('ختم یافت نشد');
+        const khatm = khatms[0];
+        const remaining = khatm.total_dor - khatm.done_dor;
+        if (dorCount > remaining) {
+            alert(`حداکثر ${remaining} دور می‌توانید ثبت کنید.`);
             return;
         }
-        if (!currentUser || !currentKhatmId) {
-            alert('ابتدا وارد شوید.');
-            return;
-        }
 
-        window.showConfirm(`ثبت ${dorCount} دور برای ${recipient ? escapeHtml(recipient) : 'خودتان'}؟`, async () => {
+        showConfirm(`ثبت ${dorCount} دور برای ${recipient ? recipient : 'خودتان'}؟`, async () => {
             try {
-                const { error } = await supabaseClient.rpc('increment_dor', {
-                    khatm_id_param: currentKhatmId,
-                    dor_count_param: dorCount,
-                    user_id_param: currentUser.id,
-                    recipient_name_param: recipient,
-                });
-                if (error) throw error;
+                const record = {
+                    khatm_id: currentKhatmId,
+                    user_id: currentUser.id,
+                    recipient_name: recipient,
+                    dor_count: dorCount
+                };
+                await supabaseQuery('dor_records', 'POST', record);
 
-                window.closeModal('addDorModal');
-                await window.openKhatmDetail(currentKhatmId);
-                await loadHomeData();
-                alert(`✅ ${dorCount} دور ثبت شد.`);
+                const newDone = khatm.done_dor + dorCount;
+                const newStatus = newDone >= khatm.total_dor ? 'done' : 'active';
+                await supabaseQuery('khatms', 'PATCH', { done_dor: newDone, status: newStatus }, { id: `eq.${currentKhatmId}` });
+
+                closeModal('addDorModal');
+                openKhatmDetail(currentKhatmId);
+                loadHomeData();
+                if (newStatus === 'done') {
+                    alert('🎉 این ختم کامل شد! تبریک!');
+                } else {
+                    alert(`✅ ${dorCount} دور ثبت شد.`);
+                }
             } catch (err) {
                 alert('خطا در ثبت دور: ' + err.message);
             }
         });
-    };
+    } catch (err) {
+        alert('خطا: ' + err.message);
+    }
+}
 
-    // ============================================================
-    //  نظر
-    // ============================================================
-    window.submitComment = async function() {
-        const text = document.getElementById('commentInput')?.value.trim();
-        if (!text) return;
-        if (!currentUser || !currentKhatmId) {
-            alert('ابتدا وارد شوید.');
+async function submitComment() {
+    const text = document.getElementById('commentInput').value.trim();
+    if (!text) return;
+    if (!currentUser || !currentKhatmId) {
+        alert('ابتدا وارد شوید.');
+        return;
+    }
+    try {
+        await supabaseQuery('comments', 'POST', {
+            khatm_id: currentKhatmId,
+            user_id: currentUser.id,
+            text
+        });
+        openKhatmDetail(currentKhatmId);
+    } catch (err) {
+        alert('خطا در ارسال نظر: ' + err.message);
+    }
+}
+
+// ==================== داشبورد ====================
+async function showDashboard() {
+    if (!currentUser) return;
+    try {
+        const records = await supabaseQuery('dor_records', 'GET', null, { user_id: `eq.${currentUser.id}` });
+        const totalDors = records.reduce((sum, r) => sum + r.dor_count, 0);
+        const totalSalavat = totalDors * 100;
+        const participatedSet = new Set(records.map(r => r.khatm_id));
+        document.getElementById('dashboardStats').innerHTML = `
+            <div class="stat-card"><div class="stat-number">${totalDors}</div><div class="stat-label">کل دورها</div></div>
+            <div class="stat-card"><div class="stat-number">${totalSalavat}</div><div class="stat-label">صلوات</div></div>
+            <div class="stat-card"><div class="stat-number">${participatedSet.size}</div><div class="stat-label">ختم‌های شرکت</div></div>
+        `;
+
+        const khatmIds = [...participatedSet];
+        if (khatmIds.length === 0) {
+            document.getElementById('userParticipations').innerHTML = '<p>شما هنوز در ختمی شرکت نکرده‌اید.</p>';
             return;
         }
-
-        try {
-            const { error } = await supabaseClient
-                .from('comments')
-                .insert([{
-                    khatm_id: currentKhatmId,
-                    user_id: currentUser.id,
-                    text: text
-                }]);
-            if (error) throw error;
-
-            document.getElementById('commentInput').value = '';
-            await window.openKhatmDetail(currentKhatmId);
-        } catch (err) {
-            alert('خطا در ارسال نظر: ' + err.message);
-        }
-    };
-
-    // ============================================================
-    //  داشبورد
-    // ============================================================
-    async function showDashboard() {
-        if (!currentUser) return;
-
-        try {
-            const { data: records, error: rError } = await supabaseClient
-                .from('dor_records')
-                .select('*')
-                .eq('user_id', currentUser.id);
-            if (rError) throw rError;
-
-            const totalDors = records.reduce((sum, r) => sum + r.dor_count, 0);
-            const totalSalavat = totalDors * 100;
-            const participatedSet = new Set(records.map(r => r.khatm_id));
-
-            document.getElementById('dashboardStats').innerHTML = `
-                <div class="stat-card"><div class="stat-number">${totalDors}</div><div class="stat-label">کل دورها</div></div>
-                <div class="stat-card"><div class="stat-number">${totalSalavat}</div><div class="stat-label">صلوات</div></div>
-                <div class="stat-card"><div class="stat-number">${participatedSet.size}</div><div class="stat-label">ختم‌های شرکت</div></div>
-            `;
-
-            if (participatedSet.size === 0) {
-                document.getElementById('userParticipations').innerHTML = '<p>شما هنوز در ختمی شرکت نکرده‌اید.</p>';
-                return;
-            }
-
-            const { data: khatms, error: kError } = await supabaseClient
-                .from('khatms')
-                .select('*')
-                .in('id', [...participatedSet]);
-            if (kError) throw kError;
-
-            let html = '<h3>📋 ختم‌های شما</h3>';
-            khatms.forEach(k => {
-                const userDors = records.filter(r => r.khatm_id === k.id).reduce((s, r) => s + r.dor_count, 0);
-                html += `
-                    <div class="khatm-card" onclick="openKhatmDetail('${k.id}')">
-                        <div class="khatm-header">
-                            <span class="khatm-title">${escapeHtml(k.title)}</span>
-                            <span class="badge ${k.status === 'active' ? 'badge-active' : 'badge-done'}">
-                                ${k.status === 'active' ? 'فعال' : 'کامل'}
-                            </span>
-                        </div>
-                        <div class="khatm-info"><span>دورهای شما: ${userDors}</span></div>
+        const khatms = await supabaseQuery('khatms', 'GET', null, { id: `in.(${khatmIds.join(',')})` });
+        let html = '<h3>📋 ختم‌های شما</h3>';
+        khatms.forEach(k => {
+            const userDors = records.filter(r => r.khatm_id === k.id).reduce((s, r) => s + r.dor_count, 0);
+            html += `
+                <div class="khatm-card" onclick="openKhatmDetail('${k.id}')">
+                    <div class="khatm-header">
+                        <span class="khatm-title">${k.title}</span>
+                        <span class="badge ${k.status === 'active' ? 'badge-active' : 'badge-done'}">${k.status === 'active' ? 'فعال' : 'کامل'}</span>
                     </div>
-                `;
-            });
-            document.getElementById('userParticipations').innerHTML = html;
-        } catch (err) {
-            alert('خطا در داشبورد: ' + err.message);
-        }
-    }
-
-    // ============================================================
-    //  ذکر شمار
-    // ============================================================
-    async function loadZikrs() {
-        if (!currentUser) return;
-
-        try {
-            const { data, error } = await supabaseClient
-                .from('user_zikr')
-                .select('*')
-                .eq('user_id', currentUser.id)
-                .order('created_at', { ascending: true });
-            if (error) throw error;
-
-            const listEl = document.getElementById('zikrList');
-            if (!data || data.length === 0) {
-                listEl.innerHTML = '<p style="text-align:center;">هنوز ذکری اضافه نکرده‌اید.</p>';
-                return;
-            }
-
-            listEl.innerHTML = data.map(z => `
-                <div class="zikr-item">
-                    <div>
-                        <span class="zikr-name">${escapeHtml(z.zikr_name)}</span>
-                        <span class="zikr-count">${z.count}</span>
-                    </div>
-                    <div class="zikr-actions">
-                        <button class="btn btn-sm btn-gold" onclick="incrementZikr('${z.id}')">➕</button>
-                        <button class="btn btn-sm btn-outline" onclick="resetZikr('${z.id}')">صفر</button>
-                        <button class="btn btn-sm btn-danger" onclick="deleteZikr('${z.id}')">حذف</button>
-                    </div>
+                    <div class="khatm-info"><span>دورهای شما: ${userDors}</span></div>
                 </div>
-            `).join('');
-        } catch (err) {
-            alert('خطا در بارگذاری ذکرها: ' + err.message);
-        }
+            `;
+        });
+        document.getElementById('userParticipations').innerHTML = html;
+    } catch (err) {
+        alert('خطا در داشبورد: ' + err.message);
     }
+}
 
-    window.addZikr = async function() {
-        const name = document.getElementById('newZikrName').value.trim();
-        if (!name) return;
-        if (!currentUser) {
-            alert('ابتدا وارد شوید.');
+// ==================== ذکر شمار ====================
+async function loadZikrs() {
+    if (!currentUser) return;
+    try {
+        const zikrs = await supabaseQuery('user_zikr', 'GET', null, { user_id: `eq.${currentUser.id}`, order: 'created_at.asc' });
+        const listEl = document.getElementById('zikrList');
+        if (zikrs.length === 0) {
+            listEl.innerHTML = '<p style="text-align:center;">هنوز ذکری اضافه نکرده‌اید.</p>';
             return;
         }
+        listEl.innerHTML = zikrs.map(z => `
+            <div class="zikr-item">
+                <div>
+                    <span class="zikr-name">${z.zikr_name}</span>
+                    <span class="zikr-count">${z.count}</span>
+                </div>
+                <div class="zikr-actions">
+                    <button class="btn btn-sm btn-gold" onclick="incrementZikr('${z.id}')">➕</button>
+                    <button class="btn btn-sm btn-outline" onclick="resetZikr('${z.id}')">صفر</button>
+                    <button class="btn btn-sm btn-danger" onclick="deleteZikr('${z.id}')">حذف</button>
+                </div>
+            </div>
+        `).join('');
+    } catch (err) {
+        alert('خطا در بارگذاری ذکرها: ' + err.message);
+    }
+}
 
+async function addZikr() {
+    const name = document.getElementById('newZikrName').value.trim();
+    if (!name) return;
+    if (!currentUser) {
+        alert('ابتدا وارد شوید.');
+        return;
+    }
+    try {
+        await supabaseQuery('user_zikr', 'POST', {
+            user_id: currentUser.id,
+            zikr_name: name,
+            count: 0
+        });
+        document.getElementById('newZikrName').value = '';
+        loadZikrs();
+    } catch (err) {
+        alert('خطا در افزودن ذکر: ' + err.message);
+    }
+}
+
+async function incrementZikr(zikrId) {
+    try {
+        const zikrs = await supabaseQuery('user_zikr', 'GET', null, { id: `eq.${zikrId}` });
+        if (zikrs.length === 0) return;
+        const newCount = zikrs[0].count + 1;
+        await supabaseQuery('user_zikr', 'PATCH', { count: newCount }, { id: `eq.${zikrId}` });
+        loadZikrs();
+    } catch (err) {
+        alert('خطا: ' + err.message);
+    }
+}
+
+async function resetZikr(zikrId) {
+    showConfirm('آیا شمارنده این ذکر صفر شود؟', async () => {
         try {
-            const { error } = await supabaseClient
-                .from('user_zikr')
-                .insert([{ user_id: currentUser.id, zikr_name: name, count: 0 }]);
-            if (error) throw error;
-
-            document.getElementById('newZikrName').value = '';
-            await loadZikrs();
-        } catch (err) {
-            alert('خطا در افزودن ذکر: ' + err.message);
-        }
-    };
-
-    window.incrementZikr = async function(zikrId) {
-        try {
-            const { error } = await supabaseClient.rpc('increment_zikr', { zikr_id_param: zikrId });
-            if (error) throw error;
-            await loadZikrs();
+            await supabaseQuery('user_zikr', 'PATCH', { count: 0 }, { id: `eq.${zikrId}` });
+            loadZikrs();
         } catch (err) {
             alert('خطا: ' + err.message);
         }
-    };
+    });
+}
 
-    window.resetZikr = async function(zikrId) {
-        window.showConfirm('آیا شمارنده این ذکر صفر شود؟', async () => {
-            try {
-                const { error } = await supabaseClient
-                    .from('user_zikr')
-                    .update({ count: 0 })
-                    .eq('id', zikrId);
-                if (error) throw error;
-                await loadZikrs();
-            } catch (err) {
-                alert('خطا: ' + err.message);
-            }
-        });
-    };
-
-    window.deleteZikr = async function(zikrId) {
-        window.showConfirm('آیا این ذکر حذف شود؟', async () => {
-            try {
-                const { error } = await supabaseClient
-                    .from('user_zikr')
-                    .delete()
-                    .eq('id', zikrId);
-                if (error) throw error;
-                await loadZikrs();
-            } catch (err) {
-                alert('خطا: ' + err.message);
-            }
-        });
-    };
-
-    // ============================================================
-    //  پنل ادمین
-    // ============================================================
-    async function loadAdminData() {
-        if (!currentUser || !(currentUserProfile?.role === 'admin1' || currentUserProfile?.role === 'admin2')) {
-            alert('دسترسی غیرمجاز');
-            return;
-        }
-
+async function deleteZikr(zikrId) {
+    showConfirm('آیا این ذکر حذف شود؟', async () => {
         try {
-            const { data: users, error: uError } = await supabaseClient
-                .from('profiles')
-                .select('*')
-                .order('created_at', { ascending: false });
-            if (uError) throw uError;
-
-            let userHtml = '<table class="admin-table"><thead><tr><th>نام</th><th>شماره</th><th>نقش</th><th>عملیات</th></tr></thead><tbody>';
-            users.forEach(u => {
-                userHtml += `<tr>
-                    <td>${escapeHtml(u.name)}</td>
-                    <td>${escapeHtml(u.phone)}</td>
-                    <td>${escapeHtml(u.role)}</td>
-                    <td>
-                        ${currentUserProfile.role === 'admin1' && u.role !== 'admin1' ? `
-                            <button class="btn btn-sm btn-gold" onclick="promoteToAdmin2('${u.id}')">ارتقا</button>
-                            <button class="btn btn-sm btn-danger" onclick="deleteUser('${u.id}')">حذف</button>
-                        ` : ''}
-                        ${currentUserProfile.role === 'admin2' && u.role === 'user' ? `
-                            <button class="btn btn-sm btn-danger" onclick="deleteUser('${u.id}')">حذف</button>
-                        ` : ''}
-                    </td>
-                </tr>`;
-            });
-            userHtml += '</tbody></table>';
-            document.getElementById('adminUsersList').innerHTML = userHtml;
-
-            const { data: khatms, error: kError } = await supabaseClient
-                .from('khatms')
-                .select('*')
-                .order('created_at', { ascending: false });
-            if (kError) throw kError;
-
-            let khatmHtml = '<table class="admin-table"><thead><tr><th>عنوان</th><th>وضعیت</th><th>عملیات</th></tr></thead><tbody>';
-            khatms.forEach(k => {
-                khatmHtml += `<tr>
-                    <td>${escapeHtml(k.title)}</td>
-                    <td>${escapeHtml(k.status)}</td>
-                    <td><button class="btn btn-sm btn-danger" onclick="deleteKhatm('${k.id}')">حذف</button></td>
-                </tr>`;
-            });
-            khatmHtml += '</tbody></table>';
-            document.getElementById('adminKhatmsList').innerHTML = khatmHtml;
+            await supabaseQuery('user_zikr', 'DELETE', null, { id: `eq.${zikrId}` });
+            loadZikrs();
         } catch (err) {
-            alert('خطا در بارگذاری پنل ادمین: ' + err.message);
+            alert('خطا: ' + err.message);
         }
+    });
+}
+
+// ==================== پنل ادمین ====================
+async function loadAdminData() {
+    if (!currentUser || (currentUser.role !== 'admin1' && currentUser.role !== 'admin2')) {
+        alert('دسترسی غیرمجاز');
+        return;
     }
-
-    window.promoteToAdmin2 = async function(userId) {
-        window.showConfirm('ارتقا به ادمین دوم؟', async () => {
-            try {
-                const { error } = await supabaseClient
-                    .from('profiles')
-                    .update({ role: 'admin2' })
-                    .eq('id', userId);
-                if (error) throw error;
-                await loadAdminData();
-            } catch (err) {
-                alert('خطا: ' + err.message);
-            }
+    try {
+        const users = await supabaseQuery('users', 'GET', null, { order: 'created_at.desc' });
+        let userHtml = '<table class="admin-table"><thead><tr><th>نام</th><th>شماره</th><th>نقش</th><th>عملیات</th></tr></thead><tbody>';
+        users.forEach(u => {
+            userHtml += `<tr>
+                <td>${u.name}</td>
+                <td>${u.phone}</td>
+                <td>${u.role}</td>
+                <td>
+                    ${currentUser.role === 'admin1' && u.role !== 'admin1' ? `
+                        <button class="btn btn-sm btn-gold" onclick="promoteToAdmin2('${u.id}')">ارتقا</button>
+                        <button class="btn btn-sm btn-danger" onclick="deleteUser('${u.id}')">حذف</button>
+                    ` : ''}
+                    ${currentUser.role === 'admin2' && u.role === 'user' ? `
+                        <button class="btn btn-sm btn-danger" onclick="deleteUser('${u.id}')">حذف</button>
+                    ` : ''}
+                </td>
+            </tr>`;
         });
-    };
+        userHtml += '</tbody></table>';
+        document.getElementById('adminUsersList').innerHTML = userHtml;
 
-    window.deleteUser = async function(userId) {
-        window.showConfirm('حذف کاربر؟', async () => {
-            try {
-                const { error } = await supabaseClient
-                    .from('profiles')
-                    .delete()
-                    .eq('id', userId);
-                if (error) throw error;
-                await loadAdminData();
-            } catch (err) {
-                alert('خطا: ' + err.message);
-            }
+        const khatms = await supabaseQuery('khatms', 'GET', null, { order: 'created_at.desc' });
+        let khatmHtml = '<table class="admin-table"><thead><tr><th>عنوان</th><th>وضعیت</th><th>عملیات</th></tr></thead><tbody>';
+        khatms.forEach(k => {
+            khatmHtml += `<tr>
+                <td>${k.title}</td>
+                <td>${k.status}</td>
+                <td><button class="btn btn-sm btn-danger" onclick="deleteKhatm('${k.id}')">حذف</button></td>
+            </tr>`;
         });
-    };
+        khatmHtml += '</tbody></table>';
+        document.getElementById('adminKhatmsList').innerHTML = khatmHtml;
+    } catch (err) {
+        alert('خطا در بارگذاری پنل ادمین: ' + err.message);
+    }
+}
 
-    window.deleteKhatm = async function(khatmId) {
-        window.showConfirm('حذف ختم؟', async () => {
-            try {
-                const { error } = await supabaseClient
-                    .from('khatms')
-                    .delete()
-                    .eq('id', khatmId);
-                if (error) throw error;
-                await loadAdminData();
-                await loadHomeData();
-            } catch (err) {
-                alert('خطا: ' + err.message);
-            }
-        });
-    };
+async function promoteToAdmin2(userId) {
+    showConfirm('ارتقا به ادمین دوم؟', async () => {
+        try {
+            await supabaseQuery('users', 'PATCH', { role: 'admin2' }, { id: `eq.${userId}` });
+            loadAdminData();
+        } catch (err) {
+            alert('خطا: ' + err.message);
+        }
+    });
+}
 
-    // ============================================================
-    //  راه‌اندازی
-    // ============================================================
-    (async function init() {
-        await loadSession();
-        navigateTo('home');
-    })();
+async function deleteUser(userId) {
+    showConfirm('حذف کاربر؟', async () => {
+        try {
+            await supabaseQuery('users', 'DELETE', null, { id: `eq.${userId}` });
+            loadAdminData();
+        } catch (err) {
+            alert('خطا: ' + err.message);
+        }
+    });
+}
 
-})(); // پایان IIFE
+async function deleteKhatm(khatmId) {
+    showConfirm('حذف ختم؟', async () => {
+        try {
+            await supabaseQuery('khatms', 'DELETE', null, { id: `eq.${khatmId}` });
+            loadAdminData();
+            loadHomeData();
+        } catch (err) {
+            alert('خطا: ' + err.message);
+        }
+    });
+}
+
+// ==================== راه‌اندازی ====================
+updateNav();
+loadHomeData();
 </script>
 </body>
 </html>
